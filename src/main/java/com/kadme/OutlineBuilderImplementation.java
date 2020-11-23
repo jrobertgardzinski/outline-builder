@@ -13,30 +13,23 @@ import java.util.stream.Stream;
 public class OutlineBuilderImplementation implements OutlineBuilder {
 
     private List<Point> linesPoints;
+    private List<Point> determinedPolygonPoints = new ArrayList<>();
 
     @Override
     public Polygon buildOutline(Set<Line> lines) {
         extractPoints(lines);
 
         Point startingPoint = findStartingPoint();
-        List<Point> determinedPolygonPoints = new ArrayList<Point>(){{ add(startingPoint); }};
+        determinedPolygonPoints.add(startingPoint);
         Point nextPoint = findClosestPoint(determinedPolygonPoints);
 
         while(nextPoint != null) {
-            Point pointOfIntersection = findIntersection(lines, Iterables.getLast(determinedPolygonPoints), nextPoint);
-
-            if(pointOfIntersection != null) {
-                determinedPolygonPoints.add(pointOfIntersection);
-            }
+            findIntersectionAndAddToDeterminedPolygonPoints(lines, Iterables.getLast(determinedPolygonPoints), nextPoint);
+            
             determinedPolygonPoints.add(nextPoint);
-
             nextPoint = findClosestPoint(determinedPolygonPoints);
         }
-        Point pointOfIntersection = findIntersection(lines, Iterables.getLast(determinedPolygonPoints), startingPoint);
-
-        if(pointOfIntersection != null) {
-            determinedPolygonPoints.add(pointOfIntersection);
-        }
+        findIntersectionAndAddToDeterminedPolygonPoints(lines, Iterables.getLast(determinedPolygonPoints), startingPoint);
 
         return new Polygon(determinedPolygonPoints);
     }
@@ -67,11 +60,15 @@ public class OutlineBuilderImplementation implements OutlineBuilder {
 
     }
 
-    private Point findIntersection(Set<Line> lines, Point pointA, Point pointB) {
+    private void findIntersectionAndAddToDeterminedPolygonPoints(Set<Line> lines, Point pointA, Point pointB) {
         Line lineA = lines.stream().filter(line -> constainsPoint(line, pointA)).findAny().get();
         Line lineB = lines.stream().filter(line -> constainsPoint(line, pointB)).findAny().get();
 
-        return GeometryCalculator.findIntersectionPoint(lineA, lineB);
+        Point pointOfIntersection = GeometryCalculator.findIntersectionPoint(lineA, lineB);
+
+        if(pointOfIntersection != null) {
+            determinedPolygonPoints.add(pointOfIntersection);
+        }
     }
 
     private boolean constainsPoint(Line line, Point point) {
