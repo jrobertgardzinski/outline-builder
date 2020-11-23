@@ -20,12 +20,24 @@ public class Polygon {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Polygon polygon = (Polygon) o;
-        return points.size() == polygon.points.size()
-                && points.stream().allMatch(polygon.points::contains);
+        if (points.size() != polygon.points.size()) return false;
+        for (Point point : polygon.getPoints()) {
+            if (!points.stream().filter(p -> p.equals(point)).findAny().isPresent()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(points);
+    }
+
+    @Override
+    public String toString() {
+        return "Polygon{" +
+                "points=" + points +
+                '}';
     }
 }

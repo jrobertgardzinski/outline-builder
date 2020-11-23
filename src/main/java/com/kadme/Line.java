@@ -1,5 +1,7 @@
 package com.kadme;
 
+import com.kadme.util.LineEquation;
+
 import java.util.Objects;
 
 public class Line {
@@ -8,8 +10,14 @@ public class Line {
     private Point p2;
 
     public Line(Point p1, Point p2) {
-        this.p1 = p1;
-        this.p2 = p2;
+        if (p1.compareTo(p2) > 0) {
+            this.p1 = p1;
+            this.p2 = p2;
+        }
+        else {
+            this.p1 = p2;
+            this.p2 = p1;
+        }
     }
 
     public Point getP1() {
@@ -18,6 +26,12 @@ public class Line {
 
     public Point getP2() {
         return p2;
+    }
+
+    public boolean containsPoint(Point point) {
+        LineEquation function = new LineEquation(this);
+        return function.containsPoint(point)
+                && this.p1.getX() > point.getX() && point.getX() > this.p2.getX();
     }
 
     @Override
